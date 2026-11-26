@@ -107,8 +107,7 @@
     standalone.searchParams.delete('embedded');
     $('open-page').href = standalone.href;
     if (location.protocol === 'file:') {
-      frame.srcdoc = window.localDemo.phoneHTML.replace('/*LOCAL_PREVIEW_QUERY*/', JSON.stringify(url.search))
-        .replace('/*LOCAL_PREVIEW_BASE*/', JSON.stringify(standalone.href));
+      frame.srcdoc = window.localDemo.phoneHTML.replace('/*LOCAL_PREVIEW_QUERY*/', JSON.stringify(url.search));
     } else {
       frame.src = url.href;
     }
@@ -147,7 +146,7 @@
     }
     if (!config.views?.length) throw Error('至少配置一个 views 页面。');
     $('demo-title').textContent = config.title || '页面演示'; document.title = config.title || '页面演示'; $('eyebrow').textContent = config.eyebrow || '移动页面 · 演示与评审';
-    config.views.forEach(v => { const b = el('button', '', v.label); b.type = 'button'; b.dataset.view = v.id; b.addEventListener('click', () => selectView(v.id)); $('views').append(b); });
+    
     (config.sizes || [{value:'390x844',label:'iPhone 标准 · 390 × 844'}]).forEach(s => { const o = el('option', '', s.label); o.value = s.value; $('size').append(o); });
     const params = new URLSearchParams(location.search), requestedSize = params.get('size') || config.defaultSize;
     if ([...$('size').options].some(o => o.value === requestedSize)) $('size').value = requestedSize;

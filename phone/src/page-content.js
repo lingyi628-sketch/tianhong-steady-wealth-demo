@@ -16,7 +16,7 @@ window.steadyContent = {
   products: [
     {
       term: '30天',
-      name: '天弘月月兴30天',
+      name: '天弘月月兴30天A',
       fullName: '天弘月月兴30天持有期债券型证券投资基金（A类）',
       code: '021537',
       holding: '最短持有30天',
@@ -28,7 +28,7 @@ window.steadyContent = {
     },
     {
       term: '90天',
-      name: '天弘工盈三个月',
+      name: '天弘工盈三个月A',
       fullName: '天弘工盈三个月持有期债券型证券投资基金（A类）',
       code: '020718',
       holding: '最短持有三个月',

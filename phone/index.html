@@ -13,8 +13,7 @@
     <div class="phone-screen">
       <div class="status-bar" aria-hidden="true">
         <span>9:41</span>
-        <span class="island"></span>
-        <span class="status-icons"><i class="signal"></i><i class="wifi"></i><i class="battery"></i></span>
+        <span class="status-icons"><i class="signal"><b></b><b></b><b></b><b></b></i><span class="network">5G</span><i class="battery">90</i></span>
       </div>
       <header class="topbar">
         <button class="back" type="button" id="back" aria-label="返回"></button>
@@ -31,13 +30,19 @@
             <button class="text-button" type="button" data-sheet="method" aria-label="计算公式"><span aria-hidden="true">i</span></button>
           </div>
           <div class="comparison" id="comparison"></div>
-          <p class="comparison-note" id="comparison-note"></p>
         </section>
         <section class="products" aria-labelledby="products-title">
           <h2 id="products-title">请选择转入产品</h2>
           <div id="products" role="radiogroup" aria-labelledby="products-title"></div>
         </section>
-        <button class="primary" type="button" id="confirm">确认</button>
+        <div class="confirm-area">
+          <button class="primary" type="button" id="confirm">确认</button>
+          <span class="tap-cue" aria-hidden="true"><span class="tap-hand"><i class="tap-finger"></i><i class="tap-knuckles"></i><i class="tap-palm"></i><i class="tap-thumb"></i><i class="tap-cuff"></i></span></span>
+        </div>
+        <footer class="comparison-note" id="comparison-note" aria-label="风险提示">
+          <span>基于历史数据测算提升率，不代表产品到期的实际收益表现</span>
+          <span>当前产品非保本保收益产品，可能发生净值波动</span>
+        </footer>
       </main>
       <div class="overlay" id="overlay" hidden>
         <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">

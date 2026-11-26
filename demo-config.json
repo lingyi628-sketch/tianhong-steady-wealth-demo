@@ -20,7 +20,7 @@
   "views": [
     {
       "id": "main",
-      "label": "默认打开 · 1年",
+      "label": "页面演示",
       "src": "phone/index.html?embedded=1",
       "notes": [
         {
@@ -33,38 +33,13 @@
           "id": "chart",
           "target": "#comparison",
           "title": "收益对照",
-          "body": "右侧圆柱上层表示超出指数的部分。点 i 查看公式，点产品名旁的「详情>」打开对应基金资料。"
+          "body": "点 i 查看公式与数据来源，点「详情>」走招行 App 的基金详情入口。"
         },
         {
           "id": "products",
           "target": "#products",
           "title": "四档产品切换",
           "body": "首屏默认选中1年档天弘优选A。切换档位会同步更新产品名称、基金代码、柱高和提升率。"
-        }
-      ]
-    },
-    {
-      "id": "30day",
-      "label": "查看30天档",
-      "src": "phone/index.html?embedded=1&fund=021537",
-      "notes": [
-        {
-          "id": "toolbar",
-          "target": ".hero-toolbar",
-          "title": "贴边标签与分享",
-          "body": "左侧为天弘基金出品，右侧点击后上拉微信和朋友圈分享面板。"
-        },
-        {
-          "id": "chart",
-          "target": "#comparison",
-          "title": "收益对照",
-          "body": "右侧圆柱上层表示超出指数的部分。点 i 查看公式，点产品名旁的「详情>」打开对应基金资料。"
-        },
-        {
-          "id": "products",
-          "target": "#products",
-          "title": "四档产品切换",
-          "body": "此视图以30天档打开，四档均可切换。"
         }
       ]
     }
@@ -82,13 +57,13 @@
       "rows": [
         [
           "30天",
-          "天弘月月兴30天",
+          "天弘月月兴30天A",
           "021537",
           "2.21%"
         ],
         [
           "90天",
-          "天弘工盈三个月",
+          "天弘工盈三个月A",
           "020718",
           "2.34%"
         ],
