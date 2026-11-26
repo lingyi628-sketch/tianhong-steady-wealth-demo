@@ -1,0 +1,123 @@
+{
+  "title": "稳健理财演示",
+  "eyebrow": "",
+  "defaultView": "main",
+  "defaultSize": "390x844",
+  "sizes": [
+    {
+      "value": "375x667",
+      "label": "iPhone SE · 375 × 667"
+    },
+    {
+      "value": "390x844",
+      "label": "iPhone 标准 · 390 × 844"
+    },
+    {
+      "value": "430x932",
+      "label": "iPhone Plus / Max · 430 × 932"
+    }
+  ],
+  "views": [
+    {
+      "id": "main",
+      "label": "默认打开 · 1年",
+      "src": "phone/index.html?embedded=1",
+      "notes": [
+        {
+          "id": "toolbar",
+          "target": ".hero-toolbar",
+          "title": "贴边标签与分享",
+          "body": "左侧为天弘基金出品，右侧点击后上拉微信和朋友圈分享面板。"
+        },
+        {
+          "id": "chart",
+          "target": "#comparison",
+          "title": "收益对照",
+          "body": "右侧圆柱底层与指数等高，上层表示超出部分。点击标题旁的 i 可查看公式和数据日期。"
+        },
+        {
+          "id": "products",
+          "target": "#products",
+          "title": "四档产品切换",
+          "body": "首屏默认选中1年档天弘优选A。切换档位会同步更新产品名称、基金代码、柱高和提升率。"
+        },
+        {
+          "id": "confirmation",
+          "target": "#confirm",
+          "title": "确认与产品资料",
+          "body": "点击确认查看当前产品的基金资料和实际持有规则。"
+        }
+      ]
+    },
+    {
+      "id": "30day",
+      "label": "查看30天档",
+      "src": "phone/index.html?embedded=1&fund=021537",
+      "notes": [
+        {
+          "id": "toolbar",
+          "target": ".hero-toolbar",
+          "title": "贴边标签与分享",
+          "body": "左侧为天弘基金出品，右侧点击后上拉微信和朋友圈分享面板。"
+        },
+        {
+          "id": "chart",
+          "target": "#comparison",
+          "title": "收益对照",
+          "body": "右侧圆柱底层与指数等高，上层表示超出部分。点击标题旁的 i 可查看公式和数据日期。"
+        },
+        {
+          "id": "products",
+          "target": "#products",
+          "title": "四档产品切换",
+          "body": "此视图以30天档打开，四档均可切换。"
+        },
+        {
+          "id": "confirmation",
+          "target": "#confirm",
+          "title": "确认与产品资料",
+          "body": "点击确认查看当前产品的基金资料和实际持有规则。"
+        }
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "type": "table",
+      "title": "四档产品对照",
+      "columns": [
+        "档位",
+        "基金",
+        "代码",
+        "年化增长"
+      ],
+      "rows": [
+        [
+          "30天",
+          "天弘月月兴30天",
+          "021537",
+          "2.21%"
+        ],
+        [
+          "90天",
+          "天弘工盈三个月",
+          "020718",
+          "2.34%"
+        ],
+        [
+          "180天",
+          "天弘信益A",
+          "007740",
+          "3.07%"
+        ],
+        [
+          "1年",
+          "天弘优选A",
+          "000606",
+          "4.03%"
+        ]
+      ],
+      "caption": "基金表现截至2026-11-24，来源为iFinD。指数1.0938%为参考图示例，截止日期未提供。"
+    }
+  ]
+}

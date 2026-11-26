@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>稳健理财</title>
+  <link rel="stylesheet" href="./src/styles.css">
+  <script defer src="./src/page-content.js"></script>
+  <script defer src="./src/app.js"></script>
+</head>
+<body>
+  <div class="iphone">
+    <div class="phone-screen">
+      <div class="status-bar" aria-hidden="true">
+        <span>9:41</span>
+        <span class="island"></span>
+        <span class="status-icons"><i class="signal"></i><i class="wifi"></i><i class="battery"></i></span>
+      </div>
+      <header class="topbar">
+        <button class="back" type="button" id="back" aria-label="返回"></button>
+        <span>稳健理财</span>
+      </header>
+      <main class="page">
+        <section class="hero" aria-labelledby="comparison-title">
+          <div class="hero-toolbar">
+            <span class="producer">天弘基金出品</span>
+            <button class="share" type="button" id="share" aria-label="分享"><span class="share-icon" aria-hidden="true"></span>分享</button>
+          </div>
+          <div class="section-heading">
+            <h1 id="comparison-title" aria-live="polite">历史业绩对照</h1>
+            <button class="text-button" type="button" data-sheet="method" aria-label="计算公式"><span aria-hidden="true">i</span></button>
+          </div>
+          <div class="comparison" id="comparison"></div>
+          <p class="comparison-note" id="comparison-note"></p>
+        </section>
+        <section class="products" aria-labelledby="products-title">
+          <h2 id="products-title">请选择转入产品</h2>
+          <div id="products" role="radiogroup" aria-labelledby="products-title"></div>
+        </section>
+        <button class="primary" type="button" id="confirm">确认</button>
+      </main>
+      <div class="overlay" id="overlay" hidden>
+        <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+          <div class="sheet-heading">
+            <h2 id="sheet-title"></h2>
+            <button class="dismiss-share" id="dismiss-share" type="button" aria-label="关闭分享" hidden>×</button>
+          </div>
+          <div id="sheet-body"></div>
+          <button class="primary" type="button" id="close">关闭</button>
+        </section>
+      </div>
+      <div class="home-indicator" aria-hidden="true"></div>
+    </div>
+  </div>
+</body>
+</html>

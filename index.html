@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>稳健理财演示</title>
+  <link rel="stylesheet" href="demo.css">
+  <script src="demo.js" defer></script>
+</head>
+<body>
+  <main class="workspace">
+    <header class="intro"><div><p id="eyebrow">移动页面 · 演示与评审</p><h1 id="demo-title">页面演示</h1></div><a id="open-page" target="_blank" rel="noopener">打开实际页面 ↗</a></header>
+    <section class="toolbar" aria-label="演示设置"><div id="views" class="views" role="group" aria-label="页面版本"></div><label>屏幕尺寸 <select id="size" aria-label="屏幕尺寸"></select></label></section>
+    <div id="error" class="error" role="alert" hidden></div>
+    <div id="review-layout" class="review-layout">
+      <aside id="materials" class="materials" aria-label="补充资料"></aside>
+      <div class="phone-column">
+        <p id="viewport-label" class="preview-meta"></p>
+        <div id="stage" class="stage"><div id="device-space" class="device-space"><div id="device" class="device">
+          <div class="display">
+            <div class="status-bar" aria-hidden="true"><strong>9:41</strong><span class="island"></span><span>▂▄▆ ▰</span></div>
+            <iframe id="preview" title="手机内实际页面"></iframe>
+            <div class="home-area" aria-hidden="true"><span></span></div>
+          </div>
+        </div></div></div>
+        <p class="hint">在手机内滚动和点击，右侧批注随对应内容定位。<br>手机外框和状态栏仅供演示。</p>
+      </div>
+      <aside id="annotations" class="annotations" aria-label="跟随页面内容的批注"><div id="notes-viewport" class="notes-viewport"><svg id="note-lines" aria-hidden="true"></svg><div id="notes"></div></div><p id="note-status" role="status" hidden></p></aside>
+    </div>
+  </main>
+</body>
+</html>
