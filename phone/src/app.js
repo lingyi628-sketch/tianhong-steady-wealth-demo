@@ -109,12 +109,7 @@
       '成立以来年化增长', 'fund', pixelsPerPoint);
 
     var examples = element('div', 'examples');
-    examples.appendChild(element('span', 'examples-label', '代表产品：'));
-    benchmark.examples.forEach(function (item) {
-      var entry = element('span', 'chip', item.name);
-      entry.title = item.type;
-      examples.appendChild(entry);
-    });
+    examples.appendChild(element('span', 'chip', benchmark.note));
     left.appendChild(examples);
     var fundName = element('div', 'examples fund-examples');
     fundName.appendChild(element('span', 'chip fund-chip', selected.name + ' ' + selected.code));

@@ -8,10 +8,7 @@ window.steadyContent = {
     startClose: 1731.4587,
     endClose: 1750.3973,
     source: 'iFinD',
-    examples: [
-      { name: '朝朝宝', type: '现金管理类理财' },
-      { name: '余额宝', type: '对接货币基金' }
-    ]
+    note: '天弘余额宝也是货币基金'
   },
   products: [
     {
