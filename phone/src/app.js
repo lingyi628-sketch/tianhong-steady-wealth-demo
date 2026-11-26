@@ -17,6 +17,10 @@
   var sheetTitle = document.getElementById('sheet-title');
   var sheetBody = document.getElementById('sheet-body');
   var closeButton = document.getElementById('close');
+  var riskNotice = [
+    '基于历史数据测算提升率，不代表产品到期的实际收益表现',
+    '当前产品非保本保收益产品，可能发生净值波动'
+  ].join('\n');
   var previousFocus;
 
   function element(tag, className, value) {
@@ -54,16 +58,17 @@
     var artwork = element('div', 'artwork');
     artwork.setAttribute('aria-hidden', 'true');
     if (rate !== null && rate >= 0) {
-      var cylinder = element('span', 'cylinder');
-      var height = rate * pixelsPerPoint;
-      cylinder.style.height = height + 'px';
-      if (variant === 'fund' && rate > benchmarkRate) {
+      var stack = element('span', 'column-stack');
+      var base = element('span', 'cylinder');
+      var baseRate = variant === 'fund' ? Math.min(rate, Math.max(0, benchmarkRate)) : rate;
+      base.style.setProperty('--column-height', baseRate * pixelsPerPoint + 'px');
+      stack.appendChild(base);
+      if (rate > baseRate) {
         var increase = element('span', 'cylinder-increase');
-        increase.style.height = ((rate - benchmarkRate) * pixelsPerPoint) + 'px';
-        cylinder.className += ' stacked';
-        cylinder.appendChild(increase);
+        increase.style.setProperty('--column-height', (rate - baseRate) * pixelsPerPoint + 'px');
+        stack.appendChild(increase);
       }
-      artwork.appendChild(cylinder);
+      artwork.appendChild(stack);
     }
     figure.appendChild(artwork);
     figure.appendChild(element('h2', 'metric-name', name));
@@ -94,12 +99,12 @@
     var maximumRate = products.reduce(function (maximum, fund) {
       return Math.max(maximum, annualized(fund) || 0);
     }, benchmarkRate);
-    var pixelsPerPoint = maximumRate > 0 ? 63 / maximumRate : 0;
-    var left = comparisonFigure(root, benchmark.name, benchmarkRate, 4,
+    var pixelsPerPoint = maximumRate > 0 ? 94 / maximumRate : 0;
+    var left = comparisonFigure(root, benchmark.name, benchmarkRate, 2,
       '近一年净值增长', 'benchmark', pixelsPerPoint);
     var arrow = element('span', 'comparison-arrow', '↗');
     arrow.setAttribute('aria-hidden', 'true');
-    root.appendChild(arrow);
+    left.querySelector('.artwork').appendChild(arrow);
     var right = comparisonFigure(root, '持有' + selected.term + '产品', rate, 2,
       '成立以来年化增长', 'fund', pixelsPerPoint);
 
@@ -115,7 +120,7 @@
     fundName.appendChild(element('span', 'chip fund-chip', selected.name + ' ' + selected.code));
     var details = element('button', 'details-link', '详情>');
     details.type = 'button';
-    details.onclick = function () { openCmbDetail(selected.code); };
+    details.onclick = function () { openCmbFund(selected.code, 'detail'); };
     fundName.appendChild(details);
     right.appendChild(fundName);
 
@@ -147,8 +152,6 @@
       input.onchange = function () {
         if (!input.checked) return;
         selected = fund;
-        document.getElementById('confirm').textContent = '确认';
-        document.querySelector('.tap-cue').hidden = false;
         renderComparison();
       };
       row.appendChild(input);
@@ -170,17 +173,22 @@
       ['指数近一年涨幅', '（期末指数收盘点位 ÷ 期初指数收盘点位 − 1）× 100%'],
       ['产品成立以来年化增长', '［（1 ＋ 成立以来累计收益率）^(365 ÷ 实际存续天数) − 1］× 100%'],
       ['收益提升率', '（产品成立以来年化增长率 ÷ 指数近一年涨幅 − 1）× 100%'],
-      ['数据来源', 'iFinD（指数收盘点位及基金复权净值收益率）。基金风险等级来自招商银行产品统一查询平台。']
+      ['数据来源', 'iFinD（指数收盘点位及基金复权净值收益率）。'],
+      ['风险提示', riskNotice]
     ]);
   }
 
-  function openCmbDetail(code) {
+  function openCmbFund(code, kind) {
     if (!/^\d{6}$/.test(code)) return;
-    var url = 'https://mobile.cmbchina.com/IFundPrds/fund-product/fund-detail.html?fundCode=' + code;
+    var url = kind === 'buy'
+      ? 'https://jump.m.cmbchina.com/8R49hVCG?_pu=144&FundCode=' + code + '&popup=true&Amount=10000'
+      : 'https://mobile.cmbchina.com/IFundPrds/fund-product/fund-detail.html?fundCode=' + code;
     if (window.cmblapiBridge && window.cmblapi && typeof window.cmblapi.pushWindow === 'function') {
-      window.cmblapi.pushWindow({ url: url, windowControl: '1', fail: function () { openSheet('detail'); } });
+      window.cmblapi.pushWindow({ url: url, windowControl: '1', fail: function () { openSheet(kind); } });
+    } else if (kind === 'buy' && window.cmblapiBridge) {
+      window.location.assign(url);
     } else {
-      openSheet('detail');
+      openSheet(kind);
     }
   }
 
@@ -189,7 +197,7 @@
       document.getElementById('comparison-title').textContent,
       selected.name + '（' + selected.code + '） · 成立以来年化增长 ' +
         percentage(annualized(selected), 2),
-      document.getElementById('comparison-note').innerText
+      riskNotice
     ].join('\n');
   }
 
@@ -266,6 +274,10 @@
       renderFormula();
     } else if (kind === 'share') {
       renderShare();
+    } else if (kind === 'buy') {
+      sheetTitle.textContent = '基金购买';
+      sheetBody.appendChild(element('p', '', selected.name + ' ' + selected.code));
+      sheetBody.appendChild(element('p', '', '请在招商银行 App 内打开购买页。'));
     } else {
       sheetTitle.textContent = '基金详情';
       sheetBody.appendChild(element('p', '', '请在招商银行 App 内查看。'));
@@ -291,8 +303,7 @@
   document.getElementById('share').onclick = function () { openSheet('share'); };
   document.getElementById('dismiss-share').onclick = closeSheet;
   document.getElementById('confirm').onclick = function () {
-    this.textContent = '已确认';
-    document.querySelector('.tap-cue').hidden = true;
+    openCmbFund(selected.code, 'buy');
   };
   closeButton.onclick = closeSheet;
   overlay.onclick = function (event) {
