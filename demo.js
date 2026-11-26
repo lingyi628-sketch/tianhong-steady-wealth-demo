@@ -6,7 +6,7 @@
   let config, view, innerDoc, observer, layoutObserver, noteObserver, removeScroll, bounds = [], tick, mounted = false;
   const escapeSelector = selector => { try { return innerDoc.querySelector(selector); } catch (_) { return null; } };
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
-  const safeURL = value => { const u = new URL(value, location.href); if (!['http:', 'https:'].includes(u.protocol)) throw Error('只支持 HTTP(S) 或本地相对资源地址。'); return u; };
+  const safeURL = value => { const u = new URL(value, location.href); const local = location.protocol === 'file:' && u.protocol === 'file:' && u.pathname.startsWith(new URL('.', location.href).pathname); if (!local && !['http:', 'https:'].includes(u.protocol)) throw Error('只支持 HTTP(S) 或本地相对资源地址。'); return u; };
   const error = message => { $('error').textContent = message; $('error').hidden = false; };
   function block(item) {
     const box = el('div', 'block block-' + item.type);
@@ -96,13 +96,23 @@
     $('viewport-label').textContent = `页面区域 ${w} × ${h} · ${Math.round(scale * 100)}% 显示`;
     saveURL(); schedule();
   }
-  function saveURL() { const u = new URL(location.href); u.searchParams.set('view', view.id); u.searchParams.set('size', $('size').value); history.replaceState(null, '', u); }
+  function saveURL() { const u = new URL(location.href); u.searchParams.set('view', view.id); u.searchParams.set('size', $('size').value); if (location.protocol !== 'file:') history.replaceState(null, '', u); }
   function detach() { observer?.disconnect(); layoutObserver?.disconnect(); removeScroll?.(); innerDoc = null; bounds = []; mounted = false; }
   function selectView(id) {
     detach(); view = config.views.find(v => v.id === id) || config.views[0];
     document.querySelectorAll('[data-view]').forEach(n => n.setAttribute('aria-pressed', String(n.dataset.view === view.id)));
     renderMaterials(); renderNotes(); $('note-status').hidden = true;
-    $('open-page').href = safeURL(view.src).href; frame.src = $('open-page').href; fit();
+    const url = safeURL(view.src);
+    const standalone = new URL(url);
+    standalone.searchParams.delete('embedded');
+    $('open-page').href = standalone.href;
+    if (location.protocol === 'file:') {
+      frame.srcdoc = window.localDemo.phoneHTML.replace('/*LOCAL_PREVIEW_QUERY*/', JSON.stringify(url.search))
+        .replace('/*LOCAL_PREVIEW_BASE*/', JSON.stringify(standalone.href));
+    } else {
+      frame.src = url.href;
+    }
+    fit();
   }
   frame.addEventListener('load', () => {
     detach();
@@ -127,7 +137,14 @@
     mounted = true; $('note-status').hidden = true; schedule();
   });
   async function start() {
-    const response = await fetch('demo-config.json', {cache: 'no-cache'}); if (!response.ok) throw Error('无法加载 demo-config.json。请通过 HTTP 服务打开演示。'); config = await response.json();
+    if (location.protocol === 'file:') {
+      if (!window.localDemo) throw Error('本地演示配置缺失，请保留完整演示目录。');
+      config = window.localDemo.config;
+    } else {
+      const response = await fetch('demo-config.json', {cache: 'no-cache'});
+      if (!response.ok) throw Error('无法加载 demo-config.json。');
+      config = await response.json();
+    }
     if (!config.views?.length) throw Error('至少配置一个 views 页面。');
     $('demo-title').textContent = config.title || '页面演示'; document.title = config.title || '页面演示'; $('eyebrow').textContent = config.eyebrow || '移动页面 · 演示与评审';
     config.views.forEach(v => { const b = el('button', '', v.label); b.type = 'button'; b.dataset.view = v.id; b.addEventListener('click', () => selectView(v.id)); $('views').append(b); });

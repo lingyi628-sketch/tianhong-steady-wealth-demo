@@ -3,11 +3,14 @@
 
   var content = window.steadyContent;
   var benchmark = content.benchmark;
+  var benchmarkRate = Number(((benchmark.endClose / benchmark.startClose - 1) * 100).toFixed(4));
   var products = content.products;
-  var fundParam = location.search.match(/[?&]fund=(\d{6})(?:&|$)/);
-  var requestedFund = fundParam ? fundParam[1] : '000606';
+  var pageSearch = window.steadyPreviewSearch || location.search;
+  var fundParam = pageSearch.match(/[?&]fund=(\d{6})(?:&|$)/);
+  var detailParam = pageSearch.match(/[?&]detail=(\d{6})(?:&|$)/);
+  var requestedFund = detailParam ? detailParam[1] : fundParam ? fundParam[1] : '000606';
   var selected = products.filter(function (fund) { return fund.code === requestedFund; })[0] || products[0];
-  if (/[?&]embedded=1(?:&|$)/.test(location.search)) {
+  if (/[?&]embedded=1(?:&|$)/.test(pageSearch)) {
     document.documentElement.classList.add('demo-embedded');
   }
   var overlay = document.getElementById('overlay');
@@ -28,8 +31,12 @@
     return value === null ? '待核验' : value.toFixed(digits) + '%';
   }
 
+  function holdingDays(fund) {
+    return (Date.parse(fund.asOf) - Date.parse(fund.inception)) / 86400000;
+  }
+
   function annualized(fund) {
-    var days = (Date.parse(fund.asOf) - Date.parse(fund.inception)) / 86400000;
+    var days = holdingDays(fund);
     if (!isFinite(days) || days <= 0 || typeof fund.sinceInception !== 'number' ||
         !isFinite(fund.sinceInception) || fund.sinceInception < -100) return null;
     var result = (Math.pow(1 + fund.sinceInception / 100, 365 / days) - 1) * 100;
@@ -37,8 +44,8 @@
   }
 
   function relativeGain(rate) {
-    if (rate === null || !isFinite(benchmark.rate) || benchmark.rate <= 0) return null;
-    return (rate / benchmark.rate - 1) * 100;
+    if (rate === null || !isFinite(benchmarkRate) || benchmarkRate <= 0) return null;
+    return (rate / benchmarkRate - 1) * 100;
   }
 
   function comparisonFigure(parent, name, rate, digits, caption, variant, pixelsPerPoint) {
@@ -51,9 +58,9 @@
       var cylinder = element('span', 'cylinder');
       var height = rate * pixelsPerPoint;
       cylinder.style.height = height + 'px';
-      if (variant === 'fund' && rate > benchmark.rate) {
+      if (variant === 'fund' && rate > benchmarkRate) {
         var increase = element('span', 'cylinder-increase');
-        increase.style.height = ((rate - benchmark.rate) * pixelsPerPoint) + 'px';
+        increase.style.height = ((rate - benchmarkRate) * pixelsPerPoint) + 'px';
         cylinder.className += ' stacked';
         cylinder.appendChild(increase);
       }
@@ -87,9 +94,9 @@
     root.textContent = '';
     var maximumRate = products.reduce(function (maximum, fund) {
       return Math.max(maximum, annualized(fund) || 0);
-    }, benchmark.rate);
+    }, benchmarkRate);
     var pixelsPerPoint = maximumRate > 0 ? 63 / maximumRate : 0;
-    var left = comparisonFigure(root, benchmark.name, benchmark.rate, 4,
+    var left = comparisonFigure(root, benchmark.name, benchmarkRate, 4,
       '近一年净值增长', 'benchmark', pixelsPerPoint);
     var arrow = element('span', 'comparison-arrow', '↗');
     arrow.setAttribute('aria-hidden', 'true');
@@ -105,9 +112,15 @@
       examples.appendChild(entry);
     });
     left.appendChild(examples);
-    var fundName = element('div', 'examples');
-    fundName.appendChild(element('span', 'chip fund-chip', selected.name));
-    fundName.appendChild(element('span', 'fund-code', selected.code));
+    var fundName = element('div', 'examples fund-examples');
+    fundName.appendChild(element('span', 'chip fund-chip', selected.name + ' ' + selected.code));
+    var details = element('a', 'details-link', '详情>');
+    details.href = new URL('?detail=' + selected.code, window.steadyPreviewBase || location.href).href;
+    if (window.parent !== window) {
+      details.target = '_blank';
+      details.rel = 'noopener';
+    }
+    fundName.appendChild(details);
     right.appendChild(fundName);
 
     var note = document.getElementById('comparison-note');
@@ -142,6 +155,7 @@
       input.onchange = function () {
         if (!input.checked) return;
         selected = fund;
+        document.getElementById('confirm').textContent = '确认';
         renderComparison();
       };
       row.appendChild(input);
@@ -149,23 +163,23 @@
     });
   }
 
-  function addFacts(facts) {
+  function addFacts(facts, container) {
     var list = element('dl');
     facts.forEach(function (fact) {
       list.appendChild(element('dt', '', fact[0]));
       list.appendChild(element('dd', '', fact[1]));
     });
-    sheetBody.appendChild(list);
+    (container || sheetBody).appendChild(list);
   }
 
-  function addLink(label, url) {
+  function addLink(label, url, container) {
     var link = element('a', '', label);
     link.href = url;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
     var row = element('p');
     row.appendChild(link);
-    sheetBody.appendChild(row);
+    (container || sheetBody).appendChild(row);
   }
 
   function renderFormula(rate) {
@@ -180,13 +194,20 @@
     var relative = relativeGain(rate);
     if (relative !== null) {
       sheetBody.appendChild(element('p', 'calculation', selected.name + ' · (' + percentage(rate, 2) +
-        ' ÷ ' + percentage(benchmark.rate, 4) + ' − 1) × 100% ≈ ' + percentage(relative, 2)));
+        ' ÷ ' + percentage(benchmarkRate, 4) + ' − 1) × 100% ≈ ' + percentage(relative, 2)));
     }
     addFacts([
-      ['货币基金指数近一年净值增长', percentage(benchmark.rate, 4) + ' · 截止日未提供 · 参考图示例'],
-      ['基金成立以来年化增长', selected.inception + ' 至 ' + (selected.asOf || '待核验') +
-        ' · ' + selected.displaySource],
-      ['收益提升率', '按上述两项数据测算，随所选产品更新'],
+      ['指数近一年涨幅｜' + benchmark.code,
+        benchmark.startDate + ' 至 ' + benchmark.endDate + ' · ' + benchmark.source +
+        '。公式：（期末收盘点位 ÷ 期初收盘点位 − 1）× 100%。代入：（' +
+        benchmark.endClose + ' ÷ ' + benchmark.startClose + ' − 1）× 100% ≈ ' + percentage(benchmarkRate, 4) + '。'],
+      ['产品成立以来年化增长',
+        selected.inception + ' 至 ' + selected.asOf + ' · ' + selected.displaySource +
+        '。公式：[(1 + 成立以来累计收益率)^(365 ÷ 实际存续天数) − 1] × 100%。' +
+        '累计收益率采用复权净值口径。代入：[(1 + ' + selected.sinceInception + '%)^(365 ÷ ' +
+        holdingDays(selected) + ') − 1] × 100% ≈ ' + percentage(rate, 2) + '。'],
+      ['收益提升率',
+        '（产品成立以来年化增长率 ÷ 指数近一年涨幅 − 1）× 100%。使用页面显示精度计算，标题取整。两项指标截止日相同，统计区间不同。'],
       ['招商银行风险等级', '查询日期 ' + content.riskAsOf]
     ]);
     sheetBody.appendChild(element('p', '', '过往业绩不预示未来收益，测算结果不反映实际持有收益。债券基金非保本保收益，净值可能波动，投资须谨慎。'));
@@ -273,25 +294,8 @@
     if (kind === 'method') {
       sheetTitle.textContent = '收益对照计算公式';
       renderFormula(rate);
-    } else if (kind === 'share') {
-      renderShare();
     } else {
-      sheetTitle.textContent = selected.name;
-      addFacts([
-        ['基金全称', selected.fullName],
-        ['基金代码', selected.code],
-        ['页面档位', selected.term],
-        ['产品实际持有规则', selected.holding],
-        ['招商银行风险等级', selected.risk || '待核验'],
-        ['招行评级查询日期', content.riskAsOf],
-        ['份额成立日期', selected.inception],
-        ['净值日期', selected.asOf || '待核验'],
-        ['数据来源', selected.displaySource],
-        ['成立以来累计净值增长', percentage(selected.sinceInception, 2)],
-        ['成立以来年化增长（折算）', percentage(rate, 2)]
-      ]);
-      sheetBody.appendChild(element('p', '', '年化增长按（1＋成立以来累计增长率）^(365÷实际存续天数)－1计算。'));
-      addLink('招商银行产品统一查询平台', 'https://finprod.paas.cmbchina.com/');
+      renderShare();
     }
     overlay.hidden = false;
     document.querySelector('.page').style.overflow = 'hidden';
@@ -305,15 +309,49 @@
     if (previousFocus) previousFocus.focus();
   }
 
+  function renderDetails(back) {
+    var page = document.querySelector('.page');
+    page.textContent = '';
+    var card = element('section', 'products details-card');
+    card.appendChild(element('h1', '', selected.name));
+    addFacts([
+      ['基金全称', selected.fullName],
+      ['基金代码', selected.code],
+      ['页面档位', selected.term],
+      ['产品实际持有规则', selected.holding],
+      ['招商银行风险等级', selected.risk || '待核验'],
+      ['招行评级查询日期', content.riskAsOf],
+      ['份额成立日期', selected.inception],
+      ['净值日期', selected.asOf],
+      ['业绩数据来源', selected.displaySource],
+      ['成立以来累计净值增长', percentage(selected.sinceInception, 2)],
+      ['成立以来年化增长（折算）', percentage(annualized(selected), 2)]
+    ], card);
+    addLink('招商银行产品统一查询平台', 'https://finprod.paas.cmbchina.com/', card);
+    page.appendChild(card);
+    document.title = selected.name + ' · 基金详情';
+    document.querySelector('.topbar > span').textContent = '基金详情';
+    back.onclick = function () { location.href = '?fund=' + selected.code; };
+  }
+
+  var back = document.getElementById('back');
+  if (detailParam && selected.code === detailParam[1]) {
+    renderDetails(back);
+    return;
+  }
   renderComparison();
   renderProducts();
-  var back = document.getElementById('back');
   back.disabled = !document.referrer || history.length < 2;
   back.onclick = function () { history.back(); };
   document.querySelector('[data-sheet="method"]').onclick = function () { openSheet('method'); };
   document.getElementById('share').onclick = function () { openSheet('share'); };
   document.getElementById('dismiss-share').onclick = closeSheet;
-  document.getElementById('confirm').onclick = function () { openSheet('fund'); };
+  document.getElementById('confirm').onclick = function () {
+    this.textContent = '已确认';
+    this.classList.remove('confirm-acknowledged');
+    void this.offsetWidth;
+    this.classList.add('confirm-acknowledged');
+  };
   closeButton.onclick = closeSheet;
   overlay.onclick = function (event) {
     if (event.target === overlay) closeSheet();

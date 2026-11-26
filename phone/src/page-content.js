@@ -1,12 +1,16 @@
 window.steadyContent = {
   riskAsOf: '2026-11-25',
   benchmark: {
-    name: '货币基金指数',
-    rate: 1.0938,
-    source: '参考截图',
+    name: '中证货币基金指数',
+    code: 'H11025.CSI',
+    startDate: '2025-11-24',
+    endDate: '2026-11-24',
+    startClose: 1731.4587,
+    endClose: 1750.3973,
+    source: 'iFinD',
     examples: [
-      { name: '余额宝', type: '对接货币基金' },
-      { name: '朝朝宝', type: '现金管理类理财' }
+      { name: '朝朝宝', type: '现金管理类理财' },
+      { name: '余额宝', type: '对接货币基金' }
     ]
   },
   products: [
@@ -20,7 +24,7 @@ window.steadyContent = {
       asOf: '2026-11-24',
       sinceInception: 5.11,
       displaySource: 'iFinD',
-      risk: 'R3 中风险'
+      risk: 'R3中风险'
     },
     {
       term: '90天',
@@ -32,7 +36,7 @@ window.steadyContent = {
       asOf: '2026-11-24',
       sinceInception: 6.20,
       displaySource: 'iFinD',
-      risk: 'R3 中风险'
+      risk: 'R3中风险'
     },
     {
       term: '180天',
@@ -45,7 +49,7 @@ window.steadyContent = {
       asOf: '2026-11-24',
       sinceInception: 24.5844,
       displaySource: 'iFinD',
-      risk: 'R3 中风险'
+      risk: 'R3中风险'
     },
     {
       term: '1年',
@@ -58,7 +62,7 @@ window.steadyContent = {
       asOf: '2026-11-24',
       sinceInception: 43.6907,
       displaySource: 'iFinD',
-      risk: 'R3 中风险'
+      risk: 'R3中风险'
     }
   ]
 };
